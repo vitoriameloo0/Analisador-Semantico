@@ -1,0 +1,78 @@
+| | | ARVORE SINTATICA | | |
+programa
+ ├includes: <includes> <includes>
+ |  ├#include <stdio.h>
+ |  ┕includes: <includes> <includes>
+ |  |  ├#include <stdlib.h>
+ |  |  ┕// funcao main
+ ┕main
+ |  ├main_conteudo: <main_conteudo> <main conteudo>
+ |  |  ├main_conteudo: <func>
+ |  |  |  ├func: <declarar> ;
+ |  |  |  |  ├declarar: <tipo> <var_id>
+ |  |  |  |  |  ├int
+ |  |  |  |  |  ┕a
+ |  |  ┕main_conteudo: <main_conteudo> <main conteudo>
+ |  |  |  ├main_conteudo: <func>
+ |  |  |  |  ├func: <declarar> ;
+ |  |  |  |  |  ├declarar: <tipo> <var_id>
+ |  |  |  |  |  |  ├int
+ |  |  |  |  |  |  ┕b
+ |  |  |  ┕main_conteudo: <main_conteudo> <main conteudo>
+ |  |  |  |  ├main_conteudo: <func>
+ |  |  |  |  |  ├func: <atribuir> ;
+ |  |  |  |  |  |  ├atribuir: <var_id> = <exp>
+ |  |  |  |  |  |  |  ├a
+ |  |  |  |  |  |  |  ┕exp: <valor>
+ |  |  |  |  |  |  |  |  ├constInt
+ |  |  |  |  |  |  |  |  |  ├2
+ |  |  |  |  ┕main_conteudo: <main_conteudo> <main conteudo>
+ |  |  |  |  |  ├main_conteudo: <func>
+ |  |  |  |  |  |  ├func: <atribuir> ;
+ |  |  |  |  |  |  |  ├atribuir: <var_id> = <exp>
+ |  |  |  |  |  |  |  |  ├b
+ |  |  |  |  |  |  |  |  ┕exp: <valor>
+ |  |  |  |  |  |  |  |  |  ├constInt
+ |  |  |  |  |  |  |  |  |  |  ├3
+ |  |  |  |  |  ┕main_conteudo: <func>
+ |  |  |  |  |  |  ├func: <for_decl>
+ |  |  |  |  |  |  |  ├for
+ |  |  |  |  |  |  |  |  ├forhead
+ |  |  |  |  |  |  |  |  |  ├inicializacao
+ |  |  |  |  |  |  |  |  |  |  ├for_opt: <declarar> ;
+ |  |  |  |  |  |  |  |  |  |  |  ├declarar: <tipo> <atribuir>
+ |  |  |  |  |  |  |  |  |  |  |  |  ├int
+ |  |  |  |  |  |  |  |  |  |  |  |  ┕_ERROR_
+ |  |  |  |  |  |  |  |  |  ┕condicao
+ |  |  |  |  |  |  |  |  |  |  ├exp: <exp> comp <exp>
+ |  |  |  |  |  |  |  |  |  |  |  ├exp: <var_id>
+ |  |  |  |  |  |  |  |  |  |  |  |  ├i
+ |  |  |  |  |  |  |  |  |  |  |  ┕exp: <valor>
+ |  |  |  |  |  |  |  |  |  |  |  |  ├constInt
+ |  |  |  |  |  |  |  |  |  |  |  |  |  ├10
+ |  |  |  |  |  |  |  |  |  |  ┕exp: <exp> ++
+ |  |  |  |  |  |  |  |  |  |  |  ├exp: <var_id>
+ |  |  |  |  |  |  |  |  |  |  |  |  ├i
+ |  |  |  |  |  |  |  |  ┕corpo: { <main_conteudo> }
+ |  |  |  |  |  |  |  |  |  ┕main_conteudo: <func>
+ |  |  |  |  |  |  |  |  |  |  ├func: <if_decl> <else_decl>
+ |  |  |  |  |  |  |  |  |  |  |  ├if_decl: if( <exp> ) <corpo>
+ |  |  |  |  |  |  |  |  |  |  |  |  ├exp: <exp> comp <exp>
+ |  |  |  |  |  |  |  |  |  |  |  |  |  ├exp: <var_id>
+ |  |  |  |  |  |  |  |  |  |  |  |  |  |  ├b
+ |  |  |  |  |  |  |  |  |  |  |  |  |  ┕exp: <var_id>
+ |  |  |  |  |  |  |  |  |  |  |  |  |  |  ├i
+ |  |  |  |  |  |  |  |  |  |  |  |  ┕corpo: { <main_conteudo> }
+ |  |  |  |  |  |  |  |  |  |  |  |  |  ┕main_conteudo: <main_conteudo> <main conteudo>
+ |  |  |  |  |  |  |  |  |  |  |  |  |  |  ├main_conteudo: <func>
+ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  ├func: <print_decl>
+ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  ├^Bom dia^
+ |  |  |  |  |  |  |  |  |  |  |  |  |  |  ┕main_conteudo: <func>
+ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  ├func: <scanf_decl>
+ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  ├*45*
+ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  ┕a
+ |  |  |  |  |  |  |  |  |  |  |  ┕else_decl: 
+ |  ┕retorno: return <exp> ;
+ |  |  ┕exp: <valor>
+ |  |  |  ├constInt
+ |  |  |  |  ├0
