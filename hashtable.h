@@ -13,6 +13,7 @@
 #define TIPO_STR        3
 #define TIPO_UNDEF      4
 #define TIPO_KEIWORD    5
+#define Tipo_CARAC      6
 
 // Lista para guardar quantas vezes uma variavel aparece no arquivo
 typedef struct Lista {
@@ -26,7 +27,10 @@ typedef struct Hash {
     char* chave;
     char* token;
     int type;
-    int valor_int; float valor_real; char valor_str[100]; char nulo[10];        
+    int valor_int; //caso tenha valor 
+    float valor_real; 
+    char valor_str[100]; 
+    char nulo[10];        
     struct Hash* prox;
 } Hash;
  
