@@ -128,12 +128,12 @@ BIBLIOTECA      ("#include"[ ]*<.+\.h>)
             }
 
 {ESCRITA}   {    strcpy(yylval.no_obj.strNome, (yytext));
-                inserir(tabela_simbolos, yytext, "ESCRITA", 3);                                
+                inserir(tabela_simbolos, yytext, "ESCRITA", 4);                                
                 return ESCRITA;           
             }
 
 {LEITURA}   {    strcpy(yylval.no_obj.strNome, (yytext));
-               inserir(tabela_simbolos, yytext, "LEITURA", 3);                                 
+               inserir(tabela_simbolos, yytext, "LEITURA", 4);                                 
                return LEITURA;           
             }
 
