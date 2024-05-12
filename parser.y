@@ -69,7 +69,11 @@ includes:   includes includes {$$.no = inserirArvore($1.no, $2.no, "includes: <i
             COMENTARIO        {$$.no = inserirArvore(NULL, NULL, yytext);}|
             /*vazio*/         {$$.no = inserirArvore(NULL, NULL, " ");};
 
-main: tipo var_id A_PARENT declaracaoV F_PARENT A_CHAVE main_conteudo retorno F_CHAVE {$$.no = inserirArvore($7.no, $8.no, $2.strNome);}
+main: tipo var_id A_PARENT declaracaoV F_PARENT A_CHAVE main_conteudo retorno F_CHAVE { if(buscar(tabela_simbolos, $2.strNome)->type != 4){
+                                                                                            printf("Erro Semantico: Tipo de variavel redefinido na linha %d\n", line);    
+                                                                                        }
+                                                                                        definirTipo($2.strNome, $1.type, tabela_simbolos);
+                                                                                        $$.no = inserirArvore($7.no, $8.no, $2.strNome);}
 
 declaracaoV: declaracaoV VIRGULA declaracaoV {$$.no = inserirArvore($1.no, $3.no, "declaracaoV: <declaracaoV> , <declaracaoV>");}|
              tipo var_id {$$.no = inserirArvore($1.no, $2.no, "declaracaoV: <tipo> <var_id>");}|
@@ -118,7 +122,7 @@ atribuir:  var_id ATRIBUICAO exp                {   Hash* temp = buscar(tabela_s
                                                     if(temp->type == $3.type){
                                                         $$.type = $3.type;
                                                         definirTipo(temp->chave, $3.type, tabela_simbolos);
-                                                        receberValor(tabela_simbolo, $1.strNome, $3.strNome);
+                                                        receberValor(tabela_simbolos, $1.strNome, $3.strNome);
                                                         $$.no = inserirArvore($1.no, $3.no, "atribuir: <var_id> = <exp>");
                                                     }
                                                     else if($1.type == 0){
@@ -333,7 +337,7 @@ int main(int argc, char *argv[]) {
     if(yyin != NULL){
         yyparse();
         fclose(yyin);
-
+       
         sprintf(arquivoArvore, "arvore_%s", argv[1]);
         yyout = fopen(arquivoArvore, "w");
 
@@ -344,12 +348,12 @@ int main(int argc, char *argv[]) {
             printf("\nA Arvore nao pode ser gerada, pois o codigo apresenta erro!\n");
 
 
-        printf("\n-----------Tabela de Palavras Reservada-----------\n");
+        printf("\n-----------------------Tabela de Palavras Reservada----------------------\n");
         mostrar (tabela_reservada);
 
-        printf("\n===================================================\n");
+        printf("\n=========================================================================\n");
     
-        printf("\n----------------Tabela de Simbolos----------------\n");
+        printf("\n----------------------------Tabela de Simbolos---------------------------\n");
         mostrar (tabela_simbolos);
         
         fclose(yyout);
