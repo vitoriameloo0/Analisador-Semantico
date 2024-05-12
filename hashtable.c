@@ -30,6 +30,11 @@ void inserir(Hash** tabela, const char* chave, char* token, int type) {
         novoNo->token = token;
         novoNo->type = type;
 
+        novoNo->valor_int = -1;
+        novoNo->valor_real= -1.0;
+        strcpy(novoNo->valor_str ,"");
+        strcpy(novoNo->nulo ,"");
+
         novoNo->prox = tabela[indice];
         tabela[indice] = novoNo;
         
@@ -57,21 +62,22 @@ void definirTipo(char* nome, int tipo, Hash** tabela){
     l->type = tipo;
 }
 
-void receberValor(Hash** tabela, char* id, char* valor){
-    Hash* l_id = buscar(tabela, id);
-    Hash* l_tipo = buscar(tabela, valor);
+void receberValor(Hash* tabela, char *var_id, char* exp){
+    Hash* l_id = buscar(tabela, var_id);
+    Hash* l_exp = buscar(tabela, exp);
 
-    if(l_tipo->type == TIPO_INT){
-        l_id->valor_int = atoi(l_tipo->chave);
+    if(l_exp->type == 1){
+        l_id->valor_int = atoi(l_exp->chave);
     }
-    else if(l_tipo->type == TIPO_REAL){
-    l_id->valor_real = atof(l_tipo->chave);
+    else if(l_exp->type == 2){
+         l_id->valor_real = atof(l_exp->chave);
     }
-    else if(l_tipo->type == TIPO_STR){
-    strcpy(l_id->valor_str, l_tipo->valor_str);
+    else if(l_exp->type == 3){
+    strcpy(l_id->valor_str, l_exp->chave);
     }
-    else
-        strcpy(l_id->nulo, NULL);
+    else if(l_exp->type == 4)
+            strcpy(l_id->nulo, "underflow");
+    else strcpy(l_id->nulo, "NULL");
 }
 
 
@@ -99,14 +105,17 @@ void mostrar(Hash** tabela){
                 else if(aux->type == TIPO_STR) printf("%-15s", "string");
                 else if(aux->type == TIPO_KEIWORD) printf("%-15s", "keyword");
                 else printf("%-10s", "underfined");
+                
+                
+                if(aux->type == 1 && aux->valor_int!= -1) printf("%-2s%d"," " ,aux->valor_int);
+                else if(aux->type == 2) printf("%-2s%d"," ", aux->valor_real);
+                else if(aux->type == 3) printf("%-2s%s", " ", aux->chave);
+                else printf("%-2s%s", " ", aux->nulo);
 
-                if(aux->valor_int == TIPO_INT) 
-
-
+                
                 printf("\n");
                 aux = aux->prox;
             }   
         }
     }
 }
-
