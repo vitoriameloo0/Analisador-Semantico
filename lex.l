@@ -117,7 +117,7 @@ BIBLIOTECA      ("#include"[ ]*<.+\.h>)
 
 {ID}		{   strcpy(yylval.no_obj.strNome, (yytext));
                 inserir(tabela_simbolos, yytext, "ID", 4);  
-                yylval.no_obj.listaSimb = buscar(tabela_simbolos, yytext);                              
+                //yylval.no_obj.listaSimb = buscar(tabela_simbolos, yytext);                              
                 return ID;
             }
 
@@ -127,12 +127,12 @@ BIBLIOTECA      ("#include"[ ]*<.+\.h>)
                 return STR;
             }
 
-{ESCRITA}   {    strcpy(yylval.no_obj.strNome, (yytext));
+{ESCRITA}   {   strcpy(yylval.no_obj.strNome, (yytext));
                 inserir(tabela_simbolos, yytext, "ESCRITA", 4);                                
                 return ESCRITA;           
             }
 
-{LEITURA}   {    strcpy(yylval.no_obj.strNome, (yytext));
+{LEITURA}   {  strcpy(yylval.no_obj.strNome, (yytext));
                inserir(tabela_simbolos, yytext, "LEITURA", 4);                                 
                return LEITURA;           
             }
@@ -150,64 +150,65 @@ BIBLIOTECA      ("#include"[ ]*<.+\.h>)
             }           
 
 {CARACTER}	{   strcpy(yylval.no_obj.strNome, (yytext));
-                inserir(tabela_simbolos, yytext, "CARACTER", 1);                                
+                inserir(tabela_simbolos, yytext, "CARACTER", 6);   
+                yylval.no_obj.type = TIPO_CHAR;                             
                 return CARACTER;
             }
 
 {BIBLIOTECA} {  strcpy(yylval.no_obj.strNome, (yytext));
-                inserir(tabela_reservada, yytext, "NOME_BIBLIOTECA", 4);                                 
+                inserir(tabela_reservada, yytext, "NOME_BIBLIOTECA", 5);                                 
                 return BIBLIOTECA;
             } 
 
-{INCREMENTO} {  inserir(tabela_reservada, yytext, "INCREMENTO", 4);                       
+{INCREMENTO} {  inserir(tabela_reservada, yytext, "INCREMENTO", 12);                       
                 return INCREMENTO;
              }
 
-{DECREMENTO} {  inserir(tabela_reservada, yytext, "DECREMENTO", 4);                        
+{DECREMENTO} {  inserir(tabela_reservada, yytext, "DECREMENTO", 12);                        
                 return DECREMENTO;
              }
 
-{ADICAO}	{  inserir(tabela_reservada, yytext, "ADICAO", 4);                   
+{ADICAO}	{  inserir(tabela_reservada, yytext, "ADICAO", 10);                   
                return ADICAO;
             }
 
-{SUBTRACAO}	{   inserir(tabela_reservada, yytext, "SUBTRACAO", 4);                    
+{SUBTRACAO}	{   inserir(tabela_reservada, yytext, "SUBTRACAO", 10);                    
                 return SUBTRACAO;
             }
 
-{MULTIPLICACAO} {   inserir(tabela_reservada, yytext, "MULTIPLICACAO", 4);                       
+{MULTIPLICACAO} {   inserir(tabela_reservada, yytext, "MULTIPLICACAO", 10);                       
                     return MULTIPLICACAO;
                 }
 
-{DIVISAO}	{   inserir(tabela_reservada, yytext, "DIVISAO", 4);                   
+{DIVISAO}	{   inserir(tabela_reservada, yytext, "DIVISAO", 10);                   
                 return DIVISAO;
             }
 
-{IGUAL}		{   inserir(tabela_reservada, yytext, "IGUAL", 4);                    
+{IGUAL}		{   inserir(tabela_reservada, yytext, "IGUAL", 13);                    
                 return IGUAL;
             }
 
-{ATRIBUICAO}	{   inserir(tabela_reservada, yytext, "ATRIBUICAO", 4);                        
+{ATRIBUICAO}	{   inserir(tabela_reservada, yytext, "ATRIBUICAO", 13);                        
                     return ATRIBUICAO;
                 }            
 
-{COMPARACAO}	{   inserir(tabela_reservada, yytext, "COMPARACAO", 4);                       
+{COMPARACAO}	{   inserir(tabela_reservada, yytext, "COMPARACAO", 11);                       
                     return COMPARACAO;
                 }
 
-{DIFERENTE}	    {   inserir(tabela_reservada, yytext, "DIFERENTE", 4);
+{DIFERENTE}	    {   inserir(tabela_reservada, yytext, "DIFERENTE", 11);
                     return DIFERENTE;
                 }
 
-{AND}           {   inserir(tabela_reservada, yytext, "AND", 4);
+{AND}           {   inserir(tabela_reservada, yytext, "AND", 14);
                     return AND;
                 }
 
-{OR}            {   inserir(tabela_reservada, yytext, "OR", 4);
+{OR}            {   inserir(tabela_reservada, yytext, "OR", 14);
                     return OR;
                 }
 
-{NOT}           {   inserir(tabela_reservada, yytext, "NOT", 4);
+{NOT}           {   inserir(tabela_reservada, yytext, "NOT", 14);
                     return NOT;
                 }
             
