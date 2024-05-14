@@ -1,0 +1,14 @@
+#include <stdio.h>
+
+int main(){
+    int a, b;
+    float c;
+
+    
+    c = a + b;
+    
+    while(b+){
+        a++;
+    }
+    return 0;
+}
