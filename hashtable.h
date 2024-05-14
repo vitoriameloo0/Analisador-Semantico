@@ -4,33 +4,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #define TAM_TABELA 100
+#define TAM_VAR 100
 
-//Tipos de Variaveis
-
+//Tipos das Variaveis
 #define TIPO_INT        1
 #define TIPO_REAL       2
 #define TIPO_STR        3
 #define TIPO_UNDEF      4
 #define TIPO_KEIWORD    5
-#define Tipo_CARAC      6
+#define TIPO_CHAR       6
+#define TIPO_VOID       7
 
-// Lista para guardar quantas vezes uma variavel aparece no arquivo
-typedef struct Lista {
-    int linha;
-    int type;
-    struct Lista* next;
-}Lista;
+#define OP_ARITMETICO   10
+#define OP_RELACIONAL   11
+#define OP_INC_DEC      12
+#define OP_ATRI         13
+#define OP_LOGIC        14
+
 
 // Estrutura para um nó da tabela hash
 typedef struct Hash {
     char* chave;
     char* token;
+    int isId;               // caso seja um ID recebe 1, caso contrario 0
     int type;
-    int valor_int; //caso tenha valor 
-    float valor_real; 
-    char valor_str[100]; 
-    char nulo[10];        
+    int valor_int;          //caso seja um ID e receba um valor inteiro  
+    float valor_real;       //caso seja um ID e receba um valor real  
+    char valor_str[TAM_VAR];    //caso seja um ID e receba uma string
+    char valor_char[TAM_VAR];   //caso seja um ID e receba um caracter
+    //char nulo[10];         
     struct Hash* prox;
 } Hash;
  
@@ -52,25 +56,42 @@ Hash** criarTabelaHash();
 // Entrada: Tabela que será inserida, a chave e o token.
 // Retorno: Nenhuma.
 // Pré-Condição: A chave não esta presente na tabela.
-// Pós-Condição: A chave e o token inseridos na tabela.
+// Pós-Condição: A chave, o token, e o type inseridos na tabela.
 void inserir(Hash** tabela, const char* chave, char* token, int type);
 
 // Função para buscar um token na tabela hash com base na chave
 // Entrada: Tabela e a chave que sera analisada.
-// Retorno: 1 caso a chave ja esteja na tabela, 0 caso contrario.
+// Retorno: Ponteiro da chave, ou NULL caso não encontrado
 // Pré-Condição: Nenhuma.
 // Pós-Condição: Nenhuma.
 Hash* buscar(Hash** tabela, const char* chave);
 
-// Função para imprimir todos os elementos da tabela
+// Função para definir o tipo de um lexema
+// Entrada: Tabela, o nome do token, tipo do token.
+// Retorno: Nenhuma. 
+// Pré-Condição: Nenhuma.
+// Pós-Condição: Token com type atualizado.
+void definirTipo(char* nome, int tipo, Hash** tabela);
+
+// Função para pegar o tipo de dado de um token
+// Entrada: Tabela e o nome do token.
+// Retorno: Nenhuma. 
+// Pré-Condição: Nenhuma.
+// Pós-Condição: Tabela impressa.
+//int pegarTipo(Hash** tabela, char* nome);
+
+// Função para imprimir todos os elementos da tabela de simbolos 
 // Entrada: Tabela.
 // Retorno: Nenhuma. 
 // Pré-Condição: Nenhuma.
 // Pós-Condição: Tabela impressa.
 void mostrar(Hash** tabela);
 
-void definirTipo(char* nome, int tipo, Hash** tabela);
-
-int pegarTipo(Hash** tabela, char* nome);
+// Função para imprimir todos os elementos da tabela reservada
+// Entrada: Tabela.
+// Retorno: Nenhuma. 
+// Pré-Condição: Nenhuma.
+// Pós-Condição: Tabela impressa.
+void mostrarReservada(Hash** tabela);
 
 #endif //HASHTABLE_H
