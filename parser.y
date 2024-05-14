@@ -26,8 +26,11 @@
     struct nome_var{
         char strNome[100]; 
         int type; 
+        int vInt;
+        float vReal;
+
         struct Node* no; // no para a arvore sintatica
-        struct Hash* listaSimb; // no para a lista Hash
+        //struct Hash* listaSimb; // no para a lista Hash
     }no_obj;
              
 };
@@ -70,17 +73,18 @@ includes:   includes includes {$$.no = inserirArvore($1.no, $2.no, "includes: <i
             /*vazio*/         {$$.no = inserirArvore(NULL, NULL, " ");};
 
 main: tipo var_id A_PARENT declaracaoV F_PARENT A_CHAVE main_conteudo retorno F_CHAVE { if(buscar(tabela_simbolos, $2.strNome)->type != 4){
-                                                                                            printf("Erro Semantico: Tipo de variavel redefinido na linha %d\n", line);    
+                                                                                            printf("Erro Semantico: Tipo de variavel foi redefinido na linha %d\n", line);    
                                                                                         }
                                                                                         definirTipo($2.strNome, $1.type, tabela_simbolos);
+                                                                                        $$.no = inserirArvore($4.no, NULL, "main: <declaracaoV>");
                                                                                         $$.no = inserirArvore($7.no, $8.no, $2.strNome);}
 
 declaracaoV: declaracaoV VIRGULA declaracaoV {$$.no = inserirArvore($1.no, $3.no, "declaracaoV: <declaracaoV> , <declaracaoV>");}|
              tipo var_id {$$.no = inserirArvore($1.no, $2.no, "declaracaoV: <tipo> <var_id>");}|
-             /*vazio*/ {$$.no = inserirArvore(NULL, NULL, "declaracaoV: ");}; 
+             /*vazio*/ {$$.no = inserirArvore(NULL, NULL, " ");}; 
 
 tipo:   INT    {$$.type = 1;    $$.no = inserirArvore(NULL, NULL, yytext);}|
-        CHAR   {$$.type = 1;    $$.no = inserirArvore(NULL, NULL, yytext);}| 
+        CHAR   {$$.type = 6;    $$.no = inserirArvore(NULL, NULL, yytext);}| 
         FLOAT  {$$.type = 2;    $$.no = inserirArvore(NULL, NULL, yytext);}|
         DOUBLE {$$.type = 2;    $$.no = inserirArvore(NULL, NULL, yytext);}|
         STRING {$$.type = 3;    $$.no = inserirArvore(NULL, NULL, yytext);}|
@@ -88,7 +92,6 @@ tipo:   INT    {$$.type = 1;    $$.no = inserirArvore(NULL, NULL, yytext);}|
        
 
 var_id: ID {$$.no = inserirArvore(NULL, NULL, yytext);};
-
 
 retorno: RETURN exp PONTO_VIRGULA {$$.no = inserirArvore(NULL, $2.no, "retorno: return <exp> ;");}
 
@@ -109,13 +112,56 @@ declarar: tipo var_id                           {   if(buscar(tabela_simbolos, $
                                                         printf("Erro Semantico: Tipo de variavel redefinido na linha %d\n", line);    
                                                     }
                                                     definirTipo($2.strNome, $1.type, tabela_simbolos);
+                                                    $$.type = $1.type;
+                                                    strcpy($$.strNome, $2.strNome);
                                                     $$.no = inserirArvore($1.no, $2.no, "declarar: <tipo> <var_id>");
                                                 }|
-          tipo var_id A_COLCHET valor F_COLCHET {$$.no = inserirArvore($2.no, $4.no, "declarar: <tipo> <var_id> [ <valor> ]");}|
-          declarar VIRGULA var_id               {$$.no = inserirArvore($1.no, $3.no, "declarar: <declarar> , <var_id> ");}|
-          declarar ATRIBUICAO valor             {$$.no = inserirArvore($1.no, $3.no, "declarar: <declarar> = <valor>");}|
-          tipo atribuir                         {$$.no = inserirArvore($1.no, $2.no, "declarar: <tipo> <atribuir>");}|
-          declarar ATRIBUICAO imp_str               {$$.no = inserirArvore($1.no, $3.no, "declarar: <tipo> = <string>");}|
+          tipo var_id A_COLCHET valor F_COLCHET {   if(buscar(tabela_simbolos, $2.strNome)->type != 4){
+                                                        printf("Erro Semantico: Tipo de variavel redefinido na linha %d\n", line);    
+                                                    }
+                                                    definirTipo($2.strNome, $1.type, tabela_simbolos);
+                                                    $$.type = $1.type;
+                                                    strcpy($$.strNome, $2.strNome);
+                                                    $$.no = inserirArvore($2.no, $4.no, "declarar: <tipo> <var_id> [ <valor> ]");
+                                                }|
+
+          declarar VIRGULA var_id               {   if(buscar(tabela_simbolos, $3.strNome)->type != 4){
+                                                        printf("Erro Semantico: Tipo de variavel redefinido na linha %d\n", line);  
+                                                    }
+                                                        definirTipo($3.strNome, $1.type, tabela_simbolos);
+                                                        $$.type = $1.type;
+                                                        strcpy($$.strNome, $3.strNome);
+                                                        $$.no = inserirArvore($1.no, $3.no, "declarar: <declarar> , <var_id> "); 
+          
+                                                }|
+
+          /*declarar ATRIBUICAO valor             {   Hash* temp = buscar(tabela_simbolos, $1.strNome);
+                                                    if(temp->type == $3.type){
+                                                        $$.type = $3.type;
+                                                        definirTipo(temp->chave, $3.type, tabela_simbolos);
+                                                        receberValor(tabela_simbolos, $1.strNome, $3.strNome);
+                                                        $$.no = inserirArvore($1.no, $3.no, "declarar: <declarar> = <valor>");
+                                                    }
+                                                    else if($1.type == 0){
+                                                        printf("Erro Semantico: '%s' nao declarado na linha %d\n", $1.strNome, line);
+                                                        $$.no = inserirError(NULL, NULL);
+                                                    }
+                                                    else{
+                                                        printf("Erro Semantico: Atribuicao de tipos incompativeis na linha %d\n", line);
+                                                        $$.no = inserirError(NULL, NULL);
+                                                    }                 
+                                                }|*/
+
+         /* tipo atribuir                         {   if($2.type == $1.type){
+
+                                                    }
+                                                    $$.no = inserirArvore($1.no, $2.no, "declarar: <tipo> <atribuir>");
+
+                                                
+                                                
+                                                }|*/
+
+          declarar ATRIBUICAO imp_str           {$$.no = inserirArvore($1.no, $3.no, "declarar: <tipo> = <string>");}|
           error                                 {$$.no = inserirError(NULL, NULL);};
 
 atribuir:  var_id ATRIBUICAO exp                {   Hash* temp = buscar(tabela_simbolos, $1.strNome);
@@ -125,9 +171,9 @@ atribuir:  var_id ATRIBUICAO exp                {   Hash* temp = buscar(tabela_s
                                                         receberValor(tabela_simbolos, $1.strNome, $3.strNome);
                                                         $$.no = inserirArvore($1.no, $3.no, "atribuir: <var_id> = <exp>");
                                                     }
-                                                    else if($1.type == 0){
-                                                        printf("Erro Semantico: '%s' nao declarado na linha %d\n", $1.strNome, line);
-                                                        $$.no = inserirError(NULL, NULL);
+                                                    else if($1.type == 4){
+                                                        printf("Erro semantico: '%s' nao declarado na linha %d\n", $1.strNome, line);
+                                                         $$.no = inserirError(NULL, NULL);
                                                     }
                                                     else{
                                                         printf("Erro Semantico: Atribuicao de tipos incompativeis na linha %d\n", line);
@@ -135,9 +181,77 @@ atribuir:  var_id ATRIBUICAO exp                {   Hash* temp = buscar(tabela_s
                                                     }                                                   
                                                 }|
 
-           var_id A_COLCHET valor F_COLCHET     {$$.no = inserirArvore($1.no, $3.no, "atribuir: <var_id> [ <valor> ]");}|
+            tipo var_id ATRIBUICAO exp          {   if(buscar(tabela_simbolos, $2.strNome)->type != 4){
+                                                        printf("Erro Semantico: Tipo de variavel redefinido na linha %d\n", line);    
+                                                    }
+                                                    definirTipo($2.strNome, $1.type, tabela_simbolos);
+                                                    if($1.type == $4.type){
+                                                        $$.type = $4.type;
+                                                        receberValor(tabela_simbolos, $2.strNome, $4.strNome);
+                                                        $$.no = inserirArvore(NULL, $4.no, "atribuir: <tipo> <var_id> = <exp>");
+                                                        $$.no = inserirArvore($1.no, $2.no, "<tipo> <var_id>");
+                                                    }
+                                                    else {
+                                                        printf("Erro Semantico: Atribuicao de tipos incompativeis na linha %d\n", line);
+                                                        $$.no = inserirError(NULL, NULL);
+                                                    }
+                                                }|
 
-           atribuir ATRIBUICAO exp              {$$.no = inserirArvore($1.no, $3.no, "atribuir: <atribuir> = <exp>");}|
+           var_id A_COLCHET valor F_COLCHET ATRIBUICAO exp  {   Hash* temp = buscar(tabela_simbolos, $1.strNome); 
+                                                                if(temp->type == $6.type){
+                                                                    $$.type = $6.type;
+                                                                    definirTipo(temp->chave, $6.type, tabela_simbolos);
+                                                                    receberValor(tabela_simbolos, $1.strNome, $6.strNome);
+
+                                                                    if($3.type == 1){
+                                                                    $$.no = inserirArvore(NULL, $6.no, "atribuir: <var_id> [ <valor> ] = <exp>");
+                                                                    $$.no = inserirArvore($1.no, $3.no, "atribuir: <var_id> [ <valor> ]");
+                                                                    $$.type = $3.type;
+                                                                    }
+                                                                    else {
+                                                                    printf("Erro Semantico: Valor entre colchetes incompativel na linha %d\n", line);
+                                                                    }
+                                                                }
+                                                                else if($1.type == 4){
+                                                                        printf("Erro semantico: '%s' nao declarado na linha %d\n", $1.strNome, line);
+                                                                        $$.no = inserirError(NULL, NULL);
+                                                                    }
+                                                                else{
+                                                                    printf("Erro Semantico: Atribuicao de tipos incompativeis na linha %d\n", line);
+                                                                    $$.no = inserirError(NULL, NULL);
+                                                                }     
+                                                            }|
+
+         tipo var_id A_COLCHET valor F_COLCHET ATRIBUICAO exp   {   if(buscar(tabela_simbolos, $2.strNome)->type != 4){
+                                                                        printf("Erro Semantico: Tipo de variavel redefinido na linha %d\n", line);    
+                                                                    }
+                                                                    definirTipo($2.strNome, $1.type, tabela_simbolos);
+                                                                    if($1.type == $7.type){
+                                                                        $$.type = $7.type;
+                                                                        receberValor(tabela_simbolos, $2.strNome, $7.strNome);
+                                                                        if($4.type == 1){
+                                                                            $$.no = inserirArvore(NULL, $7.no, "atribuir: <tipo> <var_id> [ <valor> ] = <exp>");
+                                                                            $$.no = inserirArvore(NULL, $4.no, "atribuir: <tipo> <var_id> [ <valor> ]");
+                                                                            $$.no = inserirArvore($1.no, $2.no,"atribuir: <tipo> <var_id>");
+                                                                        }
+                                                                        else {
+                                                                            printf("Erro Semantico: Valor entre colchetes incompativel na linha %d\n", line);
+                                                                        }
+                                                                    }
+                                                                    else {
+                                                                         printf("Erro Semantico: Atribuicao de tipos incompativeis na linha %d\n", line);
+                                                                         $$.no = inserirError(NULL, NULL);
+                                                                    }
+                                                                }|
+
+          /* atribuir ATRIBUICAO exp              {   if($1.type == $3.type){
+                                                        $$.type = $1.type;
+
+                                                        $$.no = inserirArvore($1.no, $3.no, "atribuir: <atribuir> = <exp>");
+                                                    }
+                                                
+                                                    
+                                                }|*/
 
            exp                                  {$$.no = inserirArvore($1.no, NULL,  "atribuir: <exp>");}|
 
@@ -172,6 +286,20 @@ exp:
     exp ADICAO exp         {    if($1.type == $3.type){
                                     $$.no = inserirArvore($1.no, $3.no, "exp: <exp> + <exp>");
                                     $$.type = $1.type;
+                                    if($$.type == 1){
+                                        $$.vInt = calcular(tabela_simbolos, $1.strNome, $3.strNome, "+");
+                                        itoa($$.vInt, $$.strNome, 10);
+                                        inserir(tabela_simbolos, $$.strNome, "DIG_INT", 1); 
+                                    }
+                                    else if($$.type == 2){
+                                        $$.vReal = calcular(tabela_simbolos, $1.strNome, $3.strNome, "+");
+                                        printf("%.2f aqui\n", $$.vReal);
+                                        sprintf($$.strNome, "%.2f", $$.vReal);
+                                        printf("%s aqui\n", $$.strNome);
+                                        inserir(tabela_simbolos, $$.strNome, "DIG_REAL", 2); 
+                                        
+                                    }
+                                    
                                 }
                                 else{
                                     printf("Erro Semantico: Tipo incompativel na linha %d\n", line);
@@ -302,7 +430,7 @@ valor:  INTEGER            { struct Node* temp = inserirArvore(NULL, NULL, yytex
 
         CARACTER           { struct Node* temp = inserirArvore(NULL, NULL, yytext);
                              $$.no = inserirArvore(temp,  NULL, "constChar");
-                             $$.type = 1;
+                             $$.type = 6;
                             }|
 
         STR                { struct Node* temp = inserirArvore(NULL, NULL, yytext);
@@ -319,11 +447,11 @@ void yyerror(char *mensagem) {
 }
 
 void welcome (){
-    printf("\nANALISADOR LEXICO E SINTATICO\n");
+    printf("\nANALISADOR SEMANTICO\n");
     printf("LINGUAGEM C--\n");
     printf("\nDesenvolvido por: \n");
     printf("        Vitoria Conceicao Melo\n");
-    printf("        Matheus Prokopowiski dos Santos\n");
+    printf("        Matheus Prokopowiski dos Santos\n\n\n");
    
 }
 
@@ -348,8 +476,8 @@ int main(int argc, char *argv[]) {
             printf("\nA Arvore nao pode ser gerada, pois o codigo apresenta erro!\n");
 
 
-        printf("\n-----------------------Tabela de Palavras Reservada----------------------\n");
-        mostrar (tabela_reservada);
+        printf("\n---------------Tabela de Palavras Reservada---------------\n");
+        mostrarReservada (tabela_reservada);
 
         printf("\n=========================================================================\n");
     
