@@ -506,9 +506,7 @@ void welcome (){
     printf("\nANALISADOR SEMANTICO\n");
     printf("LINGUAGEM C--\n");
     printf("\nDesenvolvido por: \n");
-    printf("        Vitoria Conceicao Melo\n");
-    printf("        Matheus Prokopowiski dos Santos\n\n\n");
-   
+    printf("        Vitoria Melo\n\n");
 }
 
 int main(int argc, char *argv[]) {
