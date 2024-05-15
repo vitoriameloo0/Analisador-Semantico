@@ -23,18 +23,27 @@
 #define OP_ATRI         13
 #define OP_LOGIC        14
 
+// Categorias
+#define NUMERO          20
+#define VARIAVEL        21
+#define FUNCAO          22
+#define TIPO_DADO       23
+#define CARACTERES      24
+#define BIBLIOTECAS     25
+#define SIMBOLOS        26
+
 
 // Estrutura para um nó da tabela hash
 typedef struct Hash {
     char* chave;
     char* token;
-    int isId;               // caso seja um ID recebe 1, caso contrario 0
+    int categoria;      
+    int isId;                   // caso seja um ID recebe 1, caso contrario 0
     int type;
-    int valor_int;          //caso seja um ID e receba um valor inteiro  
-    float valor_real;       //caso seja um ID e receba um valor real  
-    char valor_str[TAM_VAR];    //caso seja um ID e receba uma string
-    char valor_char[TAM_VAR];   //caso seja um ID e receba um caracter
-    //char nulo[10];         
+    int valor_int;              // caso seja um ID e receba um valor inteiro  
+    float valor_real;           // caso seja um ID e receba um valor real  
+    char valor_str[TAM_VAR];    // caso seja um ID e receba uma string
+    char valor_char[TAM_VAR];   // caso seja um ID e receba um caracter       
     struct Hash* prox;
 } Hash;
  
@@ -53,11 +62,11 @@ unsigned int hash(const char* chave);
 Hash** criarTabelaHash();
 
 // Função para inserir um par chave-valor na tabela hash
-// Entrada: Tabela que será inserida, a chave e o token.
+// Entrada: Tabela que será inserida, a chave, o token, o tipo e a categoria.
 // Retorno: Nenhuma.
 // Pré-Condição: A chave não esta presente na tabela.
-// Pós-Condição: A chave, o token, e o type inseridos na tabela.
-void inserir(Hash** tabela, const char* chave, char* token, int type);
+// Pós-Condição: A chave, o token, o type e a categoria inseridos na tabela.
+void inserir(Hash** tabela, const char* chave, char* token, int type, int categoria);
 
 // Função para buscar um token na tabela hash com base na chave
 // Entrada: Tabela e a chave que sera analisada.
@@ -66,6 +75,13 @@ void inserir(Hash** tabela, const char* chave, char* token, int type);
 // Pós-Condição: Nenhuma.
 Hash* buscar(Hash** tabela, const char* chave);
 
+// Função para definir a categoria de um token na tabela 
+// Entrada: Tabela, o nome do lexema e a categoria dela
+// Retorno: Nenhuma.
+// Pré-Condição: Nenhuma.
+// Pós-Condição: Categoria definida.
+void definirCategoria(Hash** tabela, char* nome , int categoria);
+
 // Função para definir o tipo de um lexema
 // Entrada: Tabela, o nome do token, tipo do token.
 // Retorno: Nenhuma. 
@@ -73,12 +89,19 @@ Hash* buscar(Hash** tabela, const char* chave);
 // Pós-Condição: Token com type atualizado.
 void definirTipo(char* nome, int tipo, Hash** tabela);
 
-// Função para pegar o tipo de dado de um token
-// Entrada: Tabela e o nome do token.
-// Retorno: Nenhuma. 
+// Função para calcular os valores inteiros a partir do sinal aritmetico passado
+// Entrada: Tabela, expressão 1, expressão 2 e o sinal aritmetico
+// Retorno: Resultado do calculo. 
 // Pré-Condição: Nenhuma.
-// Pós-Condição: Tabela impressa.
-//int pegarTipo(Hash** tabela, char* nome);
+// Pós-Condição: Nenhuma.
+int calcularInt(Hash** tabela, char* expressao1, char* expressao2, char* simbolo);
+
+// Função para calcular os valores float a partir do sinal aritmetico passado
+// Entrada: Tabela, expressão 1, expressão 2 e o sinal aritmetico
+// Retorno: Resultado do calculo. 
+// Pré-Condição: Nenhuma.
+// Pós-Condição: Nenhuma.
+float calcularReal (Hash** tabela, char* expressao1, char* expressao2, char* simbolo);
 
 // Função para imprimir todos os elementos da tabela de simbolos 
 // Entrada: Tabela.
