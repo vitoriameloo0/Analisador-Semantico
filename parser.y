@@ -73,10 +73,11 @@ includes:   includes includes {$$.no = inserirArvore($1.no, $2.no, "includes: <i
             /*vazio*/         {$$.no = inserirArvore(NULL, NULL, " ");};
 
 main: tipo var_id A_PARENT declaracaoV F_PARENT A_CHAVE main_conteudo retorno F_CHAVE { if(buscar(tabela_simbolos, $2.strNome)->type != 4){
-                                                                                            printf("Erro Semantico: Tipo de variavel foi redefinido na linha %d\n", line);    
+                                                                                            int x = verificaExistencia(tabela_simbolos, $2.strNome);
+                                                                                            printf("Erro Semantico: Variavel com mesmo nome da funcao definido na linha %d\n", x);    
                                                                                         }
                                                                                         definirCategoria(tabela_simbolos, $2.strNome, 22);
-                                                                                        definirTipo($2.strNome, $1.type, tabela_simbolos);
+                                                                                        definirTipo($2.strNome, 22, tabela_simbolos);
                                                                                         $$.no = inserirArvore($4.no, NULL, "main: <declaracaoV>");
                                                                                         $$.no = inserirArvore($7.no, $8.no, $2.strNome);}
 
@@ -183,24 +184,7 @@ declarar: tipo var_id                           {   if(buscar(tabela_simbolos, $
 
           error                                 {$$.no = inserirError(NULL, NULL);};
 
-atribuir:  var_id ATRIBUICAO exp                {   Hash* temp = buscar(tabela_simbolos, $1.strNome);
-                                                    if(temp->type == $3.type){
-                                                        $$.type = $3.type;
-                                                        definirTipo(temp->chave, $3.type, tabela_simbolos);
-                                                        receberValor(tabela_simbolos, $1.strNome, $3.strNome);
-                                                        $$.no = inserirArvore($1.no, $3.no, "atribuir: <var_id> = <exp>");
-                                                    }
-                                                    else if(temp->type == 4){
-                                                        printf("Erro semantico: '%s' nao foi declarado na linha %d\n", $1.strNome, line);
-                                                        $$.no = inserirError(NULL, NULL);
-                                                    }
-                                                    else{
-                                                        printf("Erro Semantico: Atribuicao de tipos incompativeis na linha %d\n", line);
-                                                        $$.no = inserirError(NULL, NULL);
-                                                    }                                                   
-                                                }|
-
-            tipo var_id ATRIBUICAO exp          {   if(buscar(tabela_simbolos, $2.strNome)->type != 4){
+atribuir:   tipo var_id ATRIBUICAO exp          {   if(buscar(tabela_simbolos, $2.strNome)->type != 4){
                                                         printf("Erro Semantico: Tipo da variavel '%s' redefinido na linha %d\n", $2.strNome, line);    
                                                     }
                                                     if(buscar(tabela_simbolos, $2.strNome)->categoria != 4) {
@@ -218,6 +202,22 @@ atribuir:  var_id ATRIBUICAO exp                {   Hash* temp = buscar(tabela_s
                                                         printf("Erro Semantico: Atribuicao de tipos incompativeis na linha %d\n", line);
                                                         $$.no = inserirError(NULL, NULL);
                                                     }
+                                                }|
+            var_id ATRIBUICAO exp                {   Hash* temp = buscar(tabela_simbolos, $1.strNome);
+                                                    if(temp->type == $3.type){
+                                                        $$.type = $3.type;
+                                                        definirTipo(temp->chave, $3.type, tabela_simbolos);
+                                                        receberValor(tabela_simbolos, $1.strNome, $3.strNome);
+                                                        $$.no = inserirArvore($1.no, $3.no, "atribuir: <var_id> = <exp>");
+                                                    }
+                                                    else if(temp->type == 4){
+                                                        printf("Erro semantico: '%s' nao foi declarado na linha %d\n", $1.strNome, line);
+                                                        $$.no = inserirError(NULL, NULL);
+                                                    }
+                                                    else{
+                                                        printf("Erro Semantico: Atribuicao de tipos incompativeis na linha %d\n", line);
+                                                        $$.no = inserirError(NULL, NULL);
+                                                    }                                                   
                                                 }|
 
            var_id A_COLCHET valor F_COLCHET ATRIBUICAO exp  {   Hash* temp = buscar(tabela_simbolos, $1.strNome); 
@@ -317,12 +317,12 @@ exp:
                                     if($$.type == 1){ // Caso o tipo seja inteiro 
                                         $$.vInt = calcularInt(tabela_simbolos, $1.strNome, $3.strNome, "+");
                                         itoa($$.vInt, $$.strNome, 10);
-                                        inserir(tabela_simbolos, $$.strNome, "DIG_INT", 1, 20); 
+                                        inserir(tabela_simbolos, $$.strNome, "DIG_INT", 1, 20, line); 
                                     }
                                     else if($$.type == 2){ // Caso o tipo seja real
                                         $$.vReal = calcularReal(tabela_simbolos, $1.strNome, $3.strNome, "+");
                                         sprintf($$.strNome, "%.2f", $$.vReal);
-                                        inserir(tabela_simbolos, $$.strNome, "DIG_REAL", 2, 20);    
+                                        inserir(tabela_simbolos, $$.strNome, "DIG_REAL", 2, 20, line);    
                                     }  
                                 }
                                 else{
@@ -339,12 +339,12 @@ exp:
                                     if($$.type == 1){ // Caso o tipo seja inteiro 
                                         $$.vInt = calcularInt(tabela_simbolos, $1.strNome, $3.strNome, "-");
                                         itoa($$.vInt, $$.strNome, 10);
-                                        inserir(tabela_simbolos, $$.strNome, "DIG_INT", 1, 20); 
+                                        inserir(tabela_simbolos, $$.strNome, "DIG_INT", 1, 20, line); 
                                     }
                                     else if($$.type == 2){ // Caso o tipo seja real
                                         $$.vReal = calcularReal(tabela_simbolos, $1.strNome, $3.strNome, "-");
                                         sprintf($$.strNome, "%.2f", $$.vReal);
-                                        inserir(tabela_simbolos, $$.strNome, "DIG_REAL", 2, 20);    
+                                        inserir(tabela_simbolos, $$.strNome, "DIG_REAL", 2, 20, line);    
                                     }
                                 }
                                 else{
@@ -361,12 +361,12 @@ exp:
                                     if($$.type == 1){ // Caso o tipo seja inteiro 
                                         $$.vInt = calcularInt(tabela_simbolos, $1.strNome, $3.strNome, "*");
                                         itoa($$.vInt, $$.strNome, 10);
-                                        inserir(tabela_simbolos, $$.strNome, "DIG_INT", 1, 20); 
+                                        inserir(tabela_simbolos, $$.strNome, "DIG_INT", 1, 20, line); 
                                     }
                                     else if($$.type == 2){ // Caso o tipo seja real
                                         $$.vReal = calcularReal(tabela_simbolos, $1.strNome, $3.strNome, "*");
                                         sprintf($$.strNome, "%.2f", $$.vReal);
-                                        inserir(tabela_simbolos, $$.strNome, "DIG_REAL", 2, 20);    
+                                        inserir(tabela_simbolos, $$.strNome, "DIG_REAL", 2, 20, line);    
                                     }
                                 }
                                 else{
@@ -382,12 +382,12 @@ exp:
                                     if($$.type == 1){ // Caso o tipo seja inteiro 
                                         $$.vInt = calcularInt(tabela_simbolos, $1.strNome, $3.strNome, "/");
                                         itoa($$.vInt, $$.strNome, 10);
-                                        inserir(tabela_simbolos, $$.strNome, "DIG_INT", 1, 20); 
+                                        inserir(tabela_simbolos, $$.strNome, "DIG_INT", 1, 20, line); 
                                     }
                                     else if($$.type == 2){ // Caso o tipo seja real
                                         $$.vReal = calcularReal(tabela_simbolos, $1.strNome, $3.strNome, "/");
                                         sprintf($$.strNome, "%.2f", $$.vReal);
-                                        inserir(tabela_simbolos, $$.strNome, "DIG_REAL", 2, 20);    
+                                        inserir(tabela_simbolos, $$.strNome, "DIG_REAL", 2, 20, line);    
                                     }
                                 }
                                 else{
@@ -397,11 +397,46 @@ exp:
                                 }
                             }|
 
-    exp INCREMENTO         {$$.no = inserirArvore($1.no,  NULL, "exp: <exp> ++");}|
+    exp INCREMENTO         {    $$.no = inserirArvore($1.no,  NULL, "exp: <exp> ++");
+                                $$.type = $1.type;
 
-    INCREMENTO exp         {$$.no = inserirArvore(NULL,  $2.no, "exp: ++ <exp>");}|
+                                if($$.type == 1){
+                                    $$.vInt = calcularInt(tabela_simbolos, $1.strNome, $1.strNome, "++");
+                                    itoa($$.vInt, $$.strNome, 10);
+                                }
+                                else if ($$.type == 2){
+                                    $$.vReal = calcularReal(tabela_simbolos, $1.strNome, $1.strNome, "++");
+                                    sprintf($$.strNome, "%.2f", $$.vReal);
+                                }
+    
+                            }|
 
-    exp DECREMENTO         {$$.no = inserirArvore($1.no,  NULL, "exp: <exp> --");}|
+    INCREMENTO exp         {    $$.no = inserirArvore(NULL,  $2.no, "exp: ++ <exp>");
+                                $$.type = $2.type;
+
+                                if($$.type == 1){
+                                    $$.vInt = calcularInt(tabela_simbolos, $2.strNome, $2.strNome, "++");
+                                    itoa($$.vInt, $$.strNome, 10);
+                                }
+                                else if ($$.type == 2){
+                                    $$.vReal = calcularReal(tabela_simbolos, $2.strNome, $2.strNome, "++");
+                                    sprintf($$.strNome, "%.2f", $$.vReal);
+                                }
+                            
+                            }|
+
+    exp DECREMENTO         {    $$.no = inserirArvore($1.no,  NULL, "exp: <exp> --");
+                                 $$.type = $1.type;
+
+                                if($$.type == 1){
+                                    $$.vInt = calcularInt(tabela_simbolos, $1.strNome, $1.strNome, "--");
+                                    itoa($$.vInt, $$.strNome, 10);
+                                }
+                                else if ($$.type == 2){
+                                    $$.vReal = calcularReal(tabela_simbolos, $1.strNome, $1.strNome, "--");
+                                    sprintf($$.strNome, "%.2f", $$.vReal);
+                                }
+                            }|
 
     DECREMENTO exp         {$$.no = inserirArvore(NULL,  $2.no, "exp: -- <exp>");}|
 
@@ -440,12 +475,14 @@ exp:
                                 }
                             }|
 
-    exp COMPARACAO exp     {    if($1.type == $3.type){
+    exp COMPARACAO exp     {    
+                                if($1.type == $3.type){
                                     $$.no = inserirArvore($1.no, $3.no, "exp: <exp> comp <exp>");
                                     $$.type = $1.type;
                                 }
                                 else{
-                                    printf("Erro Semantico: Tipo incompativel na linha %d\n", line);
+                                    printf("Erro Semantico: Tipo incompativel na linha aqui ohhh %d\n", line);
+                                    printf("tipo1: %d\ntipo2: %d\n", $1.type, $3.type);
                                     $$.no = inserirError($1.no, $3.no);
                                     $$.type = 4;
                                 }
@@ -506,7 +543,9 @@ void welcome (){
     printf("\nANALISADOR SEMANTICO\n");
     printf("LINGUAGEM C--\n");
     printf("\nDesenvolvido por: \n");
-    printf("        Vitoria Melo\n\n");
+    printf("        Vitoria Conceicao Melo\n");
+    printf("        Matheus Prokopowiski dos Santos\n\n\n");
+   
 }
 
 int main(int argc, char *argv[]) {
