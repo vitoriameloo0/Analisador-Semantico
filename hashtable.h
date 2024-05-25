@@ -32,21 +32,30 @@
 #define BIBLIOTECAS     25
 #define SIMBOLOS        26
 
+// Estrutura pra guardar as linhas que uma variavel apareceu
+typedef struct ListaId {
+    int line;
+    struct ListaId *next;
+}ListaId;
 
 // Estrutura para um nó da tabela hash
 typedef struct Hash {
-    char* chave;
+    char* chave; 
     char* token;
     int categoria;      
-    int isId;                   // caso seja um ID recebe 1, caso contrario 0
     int type;
+
     int valor_int;              // caso seja um ID e receba um valor inteiro  
     float valor_real;           // caso seja um ID e receba um valor real  
     char valor_str[TAM_VAR];    // caso seja um ID e receba uma string
-    char valor_char[TAM_VAR];   // caso seja um ID e receba um caracter       
+    char valor_char[TAM_VAR];   // caso seja um ID e receba um caracter    
+
+    ListaId *lines;             // lista de quais linhas uma variavel apareceu
+
     struct Hash* prox;
 } Hash;
  
+
 // Função de hash simples para mapear uma chave a um índice na tabela
 // Entrada: A chave que será mapeada.
 // Retorno: O valor da chave.
@@ -62,11 +71,11 @@ unsigned int hash(const char* chave);
 Hash** criarTabelaHash();
 
 // Função para inserir um par chave-valor na tabela hash
-// Entrada: Tabela que será inserida, a chave, o token, o tipo e a categoria.
+// Entrada: Tabela que será inserida, a chave, o token, o tipo, a categoria e a linha que ele apareceu.
 // Retorno: Nenhuma.
 // Pré-Condição: A chave não esta presente na tabela.
 // Pós-Condição: A chave, o token, o type e a categoria inseridos na tabela.
-void inserir(Hash** tabela, const char* chave, char* token, int type, int categoria);
+void inserir(Hash** tabela, const char* chave, char* token, int type, int categoria, int linha);
 
 // Função para buscar um token na tabela hash com base na chave
 // Entrada: Tabela e a chave que sera analisada.
@@ -74,6 +83,13 @@ void inserir(Hash** tabela, const char* chave, char* token, int type, int catego
 // Pré-Condição: Nenhuma.
 // Pós-Condição: Nenhuma.
 Hash* buscar(Hash** tabela, const char* chave);
+
+// Função para verificar se o nome da funcao ja apareceu em alguma parte do codigo como ID
+// Entrada: Tabela e a chave que sera analisada.
+// Retorno: O numero da linha em que ele apareceu pela primeira vez
+// Pré-Condição: O tipo do token padrao ter sido modificado.
+// Pós-Condição: Apontar a linha que apareceu a variavel.
+int verificaExistencia(Hash** tabela, char* nome);
 
 // Função para definir a categoria de um token na tabela 
 // Entrada: Tabela, o nome do lexema e a categoria dela
