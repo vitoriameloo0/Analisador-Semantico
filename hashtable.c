@@ -19,9 +19,10 @@ unsigned int hash(const char* chave) {
     return hash % TAM_TABELA;
 }
 
-// Função para inserir uma chave, valor e tipo na tabela hash passada
-void inserir(Hash** tabela, const char* chave, char* token, int type, int categoria) {
+// Função para inserir uma chave, valor, tipo, categoria e a linha que ele aparece na tabela hash passada
+void inserir(Hash** tabela, const char* chave, char* token, int type, int categoria, int linha) {
     Hash* verifica = buscar(tabela, chave);
+    
 
     if(verifica == NULL){ //insere na tabela caso ainda não esteja inserida
         unsigned int indice = hash(chave);
@@ -30,18 +31,26 @@ void inserir(Hash** tabela, const char* chave, char* token, int type, int catego
         novoNo->token = token;
         novoNo->type = type;
         novoNo->categoria = categoria;
-
-        if(strcmp(token, "ID") == 0) novoNo->isId = 1;
-        else novoNo->isId = 0;
-
+        
         if(type == 1 && strcmp(token, "DIG_INT") == 0) novoNo->valor_int = atoi(chave);
         else if(type == 2 && strcmp(token, "DIG_REAL") == 0) novoNo->valor_real = atof(chave);
         else if(type == 3 && strcmp(token, "STRING") == 0) strcpy(novoNo->valor_str, chave);
         else if(type == 6 && strcmp(token, "CARACTER") == 0) strcpy(novoNo->valor_char, chave);
-        
+
+        novoNo->lines = (ListaId*) malloc (sizeof(ListaId));
+        novoNo->lines->line = linha;
+        novoNo->lines->next = NULL;
+
         novoNo->prox = tabela[indice];
-        tabela[indice] = novoNo;
-        
+        tabela[indice] = novoNo;  
+    }
+    else { // insere a linha em que o tokem apareceu novamente no arquivo       
+        ListaId *lista = verifica->lines;
+        while (lista->next != NULL) lista = lista->next;
+
+        lista->next = (ListaId*) malloc (sizeof(ListaId));
+        lista->next->line = linha;
+        lista->next->next = NULL;
     }
 }
 
@@ -57,6 +66,16 @@ Hash* buscar(Hash** tabela, const char* chave) {
         atual = atual->prox;
     }
     return NULL; // Caso não tenha encontrado a chave
+}
+
+// Funcao pra verificar se um ID com o mesmo nome da funcao ja foi inserido na tabela
+int verificaExistencia(Hash** tabela, char* nome){
+    Hash* verifica = buscar(tabela, nome);
+    ListaId *lista = verifica->lines;
+    
+    while(lista->next != NULL) lista = lista->next;
+    
+    return lista->line; // Devolve a linha da primeira vez que ele foi inserido
 }
 
 // Função para definir a categoria de um lexema
@@ -112,6 +131,16 @@ int calcularInt(Hash** tabela, char* expressao1, char* expressao2, char* simbolo
         x = expr1->valor_int / expr2->valor_int;
         return x;
     } 
+    else if(strcmp(simbolo, "++") == 0){
+        x = expr1->valor_int + 1;
+        expr1->valor_int = x;
+        return expr1->valor_int;
+    }
+    else if(strcmp(simbolo, "--") == 0){
+        x = expr1->valor_int - 1;
+        expr1->valor_int = x;
+        return expr1->valor_int;
+    }
     return 0;
 }
 
@@ -137,6 +166,17 @@ float calcularReal (Hash** tabela, char* expressao1, char* expressao2, char* sim
         y = expr1->valor_real / expr2->valor_real;
         return y;
     }
+    else if(strcmp(simbolo, "++") == 0){
+        y = expr1->valor_real + 1.0;
+        printf("%f aqui\n", y);
+        expr1->valor_real = y;
+        return expr1->valor_real;
+    }
+    else if(strcmp(simbolo, "--") == 0){
+        y = expr1->valor_real - 1.0;
+        expr1->valor_real = y;
+        return expr1->valor_real;
+    }
     return 0.0;
 }
 
@@ -157,8 +197,9 @@ void mostrar(Hash** tabela){
                 else if(aux->type == TIPO_STR)      printf("%-16s", "string");
                 else if(aux->type == TIPO_CHAR)     printf("%-16s", "char");
                 else if(aux->type == TIPO_VOID)     printf("%-16s", "void");
-                else if(aux->type == TIPO_KEIWORD)  printf("%-16s", "keyword");
-                else                                printf("%-16s", "indefinido"); 
+                else if(aux->type == TIPO_KEIWORD)  printf("%-16s", "Keyword");
+                else if(aux->type == FUNCAO)        printf("%-16s", "Funcao");
+                else                                printf("%-16s", "Indefinido"); 
                 
                 if(aux->categoria == NUMERO)            printf("%-22s", "Numero");
                 else if(aux->categoria == VARIAVEL)     printf("%-22s", "Variavel");
@@ -166,11 +207,11 @@ void mostrar(Hash** tabela){
                 else if(aux->categoria == CARACTERES)   printf("%-22s", "Caracteres");
                 else                                    printf("%-22s", "Indefinido");
                 
-                if(aux->type == TIPO_INT && aux->isId == 1)       printf("%-16d", aux->valor_int);
-                else if(aux->type == TIPO_REAL && aux->isId == 1) printf("%-16.2f", aux->valor_real);
-                else if(aux->type == TIPO_STR && aux->isId == 1)  printf("%-16s", aux->valor_str);
-                else if(aux->type == TIPO_CHAR && aux->isId == 1) printf("%-16s", aux->valor_char);
-                else                                              printf("%-16s", "---");
+                if(aux->type == TIPO_INT)       printf("%-16d", aux->valor_int);
+                else if(aux->type == TIPO_REAL) printf("%-16.2f", aux->valor_real);
+                else if(aux->type == TIPO_STR)  printf("%-16s", aux->valor_str);
+                else if(aux->type == TIPO_CHAR) printf("%-16s", aux->valor_char);
+                else                            printf("%-16s", "---");
                 
                 printf("\n");
                 aux = aux->prox;
