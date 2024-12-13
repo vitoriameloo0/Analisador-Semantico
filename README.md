@@ -1,4 +1,4 @@
-# Análisador Léxico
+# Análisador Semantico
 
 ## Descrição
 Esse projeto foi criado para a disciplina de compiladores, em que se pede para fazer algumas definições de uma linguagem de programação, podendo criar uma nova ou se basear em uma ja existente, e assim implementar um software que simula um compilador capaz de fazer a análise semantica.
